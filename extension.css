@@ -8,3 +8,6 @@
 .remark-slide-content .stuff-table td {
     padding: .5em;
 }
+.remark-slide-content .highlight {
+    color: red;
+}

@@ -10,7 +10,7 @@ class: title
 
 ---
 
-## 背景 (1)
+## 背景 (1/2)
 
 .margin-top-small.margin-bottom-middle.center[
 ### 2015年12月 Swiftがオープンソース化
@@ -36,7 +36,7 @@ class: title
 
 ---
 
-## 背景 (2)
+## 背景 (2/2)
 
 .horizontal[
 .center.image-middle[
@@ -44,7 +44,7 @@ class: title
 ]
 
 * Swiftは人気言語であり多くの開発者の関心を充分に集めている
-* 可読性レビューなどで保たれているだけ
+* 可読性はレビューなどで保たれているだけ
 ]
 
 .center[
@@ -98,7 +98,7 @@ Swiftコンパイラの**可読性を向上**する
 
 ---
 
-## コンパイラにおける複雑さ (1) .font-tiny[ー 可読性とは]
+## コンパイラにおける複雑さ (1/2) .font-tiny[ー 可読性とは]
 
 * コンパイラは非常に巨大なソフトウェア
 * コンパイラとして基本的な機能を担う箇所の複雑さが特に重要
@@ -110,7 +110,7 @@ Swiftコンパイラの**可読性を向上**する
 .font-small[
 | 手法 | 適合性 |
 |:---:|:---:|
-| Line of Code | ◎ |
+| .bold.highlight[Line of Code] | .bold.highlight[◎] |
 | Halstead Complexity Metrics | △<br>(部分的なプログラムでは値が偏る) |
 | Cyclomatic Complexity Metric | ×<br>(分岐が分解されてしまう) |
 | Function Point | ×<br>(入出力はほとんどない) |
@@ -118,7 +118,7 @@ Swiftコンパイラの**可読性を向上**する
 
 ---
 
-## コンパイラにおける複雑さ (2) .font-tiny[ー 可読性とは]
+## コンパイラにおける複雑さ (2/2) .font-tiny[ー 可読性とは]
 
 .margin-top-middle.center.image-middle[
 ![実行部分LOCの計測方法](img/loc_measurement.png)
@@ -339,7 +339,7 @@ func notInitialized(f: Bool) {
 
 ---
 
-## 評価方法 (1)
+## 評価方法 (1/2)
 
 .font-small.inverted.center[
 #### 2つの構文解析器の実行部分LOCを比較
@@ -357,7 +357,7 @@ func notInitialized(f: Bool) {
 
 ---
 
-## 評価方法 (2)
+## 評価方法 (2/2)
 
 .font-small[
 | 対象プログラム | 行数 | 主な使用構文 |
@@ -394,7 +394,7 @@ func notInitialized(f: Bool) {
 
 ---
 
-## 評価結果 (1)
+## 評価結果と考察 (1/4)
 
 .center[
 各プログラムにおけるコンパイラ全体の実行部分LOC
@@ -418,7 +418,7 @@ func notInitialized(f: Bool) {
 
 ---
 
-## 評価結果 (2)
+## 評価結果と考察 (2/4)
 
 .horizontal[
 .image-width-max[
@@ -436,10 +436,21 @@ ASTを構成するファイル群
 ]
 ]
 
+AST関連部分では後ステップ用の処理が実行部分LOCを増加させている
+
+.margin-top-middle.inverted.center[
+#### 構文解析ファイル群の結果に注目する
+]
+
+---
+
+## 評価結果と考察 (3/4)
+
 .font-small.center[
 構文解析ファイル群で再集計した実行部分LOC
 ]
-.font-tiny[
+
+.font-small[
 | 対象プログラム | Swift | TreeSwift | Swiftからの減少率 |
 |:---:|---:|---:|---:|
 | Simple Values | 1263 | 1457 | -16.9% |
@@ -449,4 +460,37 @@ ASTを構成するファイル群
 | Enumerations and Structures | 1886 | 1658 | 12.3% |
 | Protocols and Extensions | 1851 | 1544 | 17.2% |
 | Generics | 1934 | 1657 | 14.6% |
+]
+
+.center[
+#### 平均して10.47%実行部分LOCが減少
+]
+
+---
+
+## 評価結果と考察 (4/4)
+
+### Simple Valuesにおける実行部分LOCの増加
+
+* TreeSwiftは他の構文を想定した処理を字句解析で行っている
+* 様々な字句を用いた単純な構文では比較して実行部分LOCが増加した
+
+### 実行部分LOCの減少理由
+
+* UTF-8文字の処理などプログラム中の要素を同じ構文で記述できる
+* Swiftの多様なデータ構造とパターンマッチによる表現力の向上
+
+.font-small[
+| | Swift | TreeSwift |
+|:---:|---:|---:|
+| if文使用数の平均 | 398.429 | 209.163 |
+| switch文使用数の平均 | 26.429 | 67.286 |
+]
+
+---
+
+## 本研究の結論
+
+.bold.vertical-center.center[
+SwiftコンパイラをSelf-host化することによって<br>ソースコードの実行部分LOCを平均10.47%減少させる<br>可読性の向上を得られた
 ]
