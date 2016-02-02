@@ -1,0 +1,10 @@
+.remark-slide-content.title .long-title {
+    font-size: .7em;
+    margin-bottom: 12em;
+}
+.remark-slide-content .width-half {
+    width: 50%;
+}
+.remark-slide-content .stuff-table td {
+    padding: .5em;
+}
