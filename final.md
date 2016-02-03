@@ -84,7 +84,7 @@ class: title
 * 説明の適切さはレビューなどで維持向上できる
 * 知識の差などはドキュメントの追加によって補完されていっている
 
-.inverted.center[
+.center[
 #### 本研究では処理の複雑さを可読性の主要因と考える
 ]
 
@@ -138,7 +138,7 @@ class: title
 * 基本的な機能と特殊な機能が混在している
 * 複数の独立した処理ステップから成る
 
-.center[
+.inverted.center[
 #### 各部分の複雑さが打ち消し合う懸念
 ]
 
@@ -501,7 +501,7 @@ Self-host化によって<br>構文解析器の実行部分LOCを削減するこ�
 | Generics | 25 | 全称型 |
 ]
 
-.center.inverted[
+.center[
 #### Swiftの基本構文を充分に網羅している
 ]
 
@@ -551,7 +551,7 @@ ASTを構成するファイル群
 
 AST関連部分では後ステップ用の処理が実行部分LOCを増加させている
 
-.margin-top-middle.inverted.center[
+.margin-top-middle.center[
 #### 構文解析ファイル群の結果に注目する
 ]
 
@@ -591,7 +591,7 @@ TreeSwiftの高級な字句解析が使用構文の少ないプログラムで�
 ]
 ]
 
-.center.margin-top-middle[
+.inverted.center.margin-top-middle[
 #### Self-host化の結果現れた変化として捉える
 ]
 
@@ -613,7 +613,7 @@ TreeSwiftの高級な字句解析が使用構文の少ないプログラムで�
 | switch文使用数の平均 | 26 | 67 |
 ]
 
-.margin-top-middle.center[
+.inverted.margin-top-middle.center[
 #### Self-host化による実行部分LOCの減少であるといえる
 ]
 
@@ -621,7 +621,7 @@ TreeSwiftの高級な字句解析が使用構文の少ないプログラムで�
 
 ## 本研究の結論
 
-.margin-top-middle.center.inverted[
+.margin-top-middle.center[
 #### SwiftコンパイラのSelf-host化によって<br>構文解析器のソースコードの実行部分LOCを<br>平均10.5%減少させることができた
 ]
 
