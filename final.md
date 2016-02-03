@@ -10,7 +10,24 @@ class: title
 
 ---
 
-## 背景
+## 背景 (1/2)
+
+.margin-top-small.center[
+2014年6月 Apple社がMac OS X/iOS開発言語としてSwiftを発表
+]
+
+.margin-top-small.image-middle.center[
+![プログラミング言語の人気度](img/redmonk.png)
+]
+
+.padding-left-small.margin-left-large[
+* 汎用高級コンパイラ型プログラミング言語
+* Objective-Cの代替言語として爆発的にユーザが増加
+]
+
+---
+
+## 背景 (2/2)
 
 .margin-top-large.center[
 ### 2015年12月 Swiftがオープンソース化
@@ -35,7 +52,7 @@ class: title
 
 ## 本研究の目的
 
-.margin-top-middle.center[
+.margin-top-large.center[
 #### Swiftコンパイラの可読性を向上する
 ]
 
@@ -206,15 +223,23 @@ Swiftコンパイラの構成
 
 ## 実行部分LOCの削減手法 (1/2) .font-tiny[ー アプローチ]
 
-.margin-top-large[
+.margin-top-small[
 * 複数のStatementを1行に記述する
 * 文法を直感的な別の言語で記述し解析器を自動生成する
 * 文法を必要なステップが少なくなるように変更する
 * ...
 ]
 
-.margin-top-middle.center[
+.inverted.margin-top-small.center[
 #### 上記手法は可読性が向上するという明確な根拠がない
+]
+
+.center.margin-top-small[
+一方でコンパイラを対象言語で書き直すSelf-host化という手法がある
+]
+
+.margin-top-middle.image-width-max[
+![Self-host化の方法](img/self_host.png)
 ]
 
 ---
@@ -249,7 +274,7 @@ TIOBE Programming Indexの30位中10個の言語がSelf-host化されている
 ]
 
 .center[
-#### Self-host化をアプローチとして用いる
+#### Self-host化で可読性を向上できると期待できるため<br>本研究のアプローチとして用いる
 ]
 
 ---
@@ -294,7 +319,7 @@ Self-host化によって<br>構文解析器の実行部分LOCを削減するこ�
 
 ## Self-host化した構文解析器の実装 .font-tiny[ー 実装]
 
-### TreeSwift .font-tiny[ー 本研究で実装した構文解析器]
+### TreeSwift .font-tiny[ー 本研究で実装したSelf-host化されたSwift構文解析器]
 
 .image-width-max[
 ![TreeSwift](img/treeswift.png)
@@ -488,16 +513,16 @@ Self-host化によって<br>構文解析器の実行部分LOCを削減するこ�
 各プログラムにおけるコンパイラ全体の実行部分LOC
 ]
 
-.font-small[
-| 対象プログラム | Swift | TreeSwift | Swift / TreeSwift |
+.font-small.stuff-table[
+| 対象プログラム | .center[Swift] | .center[TreeSwift<br>(提案手法)] | .center[Swiftからの減少率] |
 |:---:|---:|---:|---:|
-| Simple Values | 4188 | 1928 | 2.172 |
-| Control Flow | 5347 | 2226 | 2.402 |
-| Functions and Closures | 5819 | 2187 | 2.661 |
-| Objects and Classes | 5937 | 2122 | 2.798 |
-| Enumerations and Structures | 5762 | 2258 | 2.552 |
-| Protocols and Extensions | 5598 | 2132 | 2.626 |
-| Generics | 5887 | 2233 | 2.636 |
+| Simple Values | 4188 | .bold[1928] | 53.96% |
+| Control Flow | 5347 | .bold[2226] | 58.37% |
+| Functions and Closures | 5819 | .bold[2187] | 62.42% |
+| Objects and Classes | 5937 | .bold[2122] | 64.26% |
+| Enumerations and Structures | 5762 | .bold[2258] | 60.81% |
+| Protocols and Extensions | 5598 | .bold[2132] | 61.91% |
+| Generics | 5887 | .bold[2233] | 62.07% |
 ]
 
 .center.inverted[
@@ -539,15 +564,15 @@ AST関連部分では後ステップ用の処理が実行部分LOCを増加さ�
 ]
 
 .font-small[
-| 対象プログラム | Swift | TreeSwift | Swiftからの減少率 |
+| 対象プログラム | .center[Swift] | .center[TreeSwift<br>(提案手法)] | .center[Swiftからの減少率] |
 |:---:|---:|---:|---:|
-| Simple Values | 1263 | 1457 | .bold.highlight[-16.9%] |
-| Control Flow | 1816 | 1698 | 7.52% |
-| Functions and Closures | 1982 | 1644 | 19.0% |
-| Objects and Classes | 1970 | 1658 | 19.6% |
-| Enumerations and Structures | 1886 | 1658 | 12.3% |
-| Protocols and Extensions | 1851 | 1544 | 17.2% |
-| Generics | 1934 | 1657 | 14.6% |
+| Simple Values | 1263 | .bold[1457] | .bold.highlight[-16.9%] |
+| Control Flow | 1816 | .bold[1698] | 7.52% |
+| Functions and Closures | 1982 | .bold[1644] | 19.0% |
+| Objects and Classes | 1970 | .bold[1658] | 19.6% |
+| Enumerations and Structures | 1886 | .bold[1658] | 12.3% |
+| Protocols and Extensions | 1851 | .bold[1544] | 17.2% |
+| Generics | 1934 | .bold[1657] | 14.6% |
 ]
 
 ---
