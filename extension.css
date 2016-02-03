@@ -11,3 +11,6 @@
 .remark-slide-content .highlight {
     color: red;
 }
+.remark-slide-content .disable {
+    color: lightgray;
+}

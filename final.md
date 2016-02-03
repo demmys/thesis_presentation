@@ -10,62 +10,44 @@ class: title
 
 ---
 
-## 背景 (1/2)
+## 背景
 
-.margin-top-small.margin-bottom-middle.center[
+.margin-top-large.center[
 ### 2015年12月 Swiftがオープンソース化
 ]
 
-.padding-left-large.margin-left-large[
-.margin-bottom-middle[
-* 開発に関われるプログラマの数
-* 開発スケジュールの適切さ
+.margin-top-middle.margin-left-large[
+* 多くの人がソースコードを参照するようになる
+* 様々なプログラマが開発に加わるようになる
+* 拡張/修正の頻度が上がりレビュー量が増加する
 ]
 
-.padding-left-middle.margin-left-large[
-.arrow-down[]
+.margin-top-middle.center[
+#### 可読性の向上がプロジェクトの活性化に<br>大きく関与するように
 ]
 
-* 開発者のソフトウェアに対する関心
-* プログラムの可読性
-]
+???
 
-.inverted.margin-top-middle.center[
-#### 開発スピードを決定する要因が変化
-]
-
----
-
-## 背景 (2/2)
-
-.horizontal[
-.center.image-middle[
-![redmonk](img/redmonk.png)
-]
-
-* Swiftは人気言語であり多くの開発者の関心を充分に集めている
-* 可読性はレビューなどで保たれているだけ
-]
-
-.center[
-#### プロジェクトの活性化には可読性を向上する必要がある
-]
+つい先日Swiftがオープンソース化した
 
 ---
 
 ## 本研究の目的
 
-.vertical-center.center[
-### Swiftコンパイラの可読性を向上する
+.margin-top-middle.center[
+#### Swiftコンパイラの可読性を向上する
+]
+
+.font-large.margin-top-middle.margin-left-large.padding-left-middle[
+1. 可読性の定義
+3. 可読性を向上するアプローチ
+4. アプローチを実現する実装
+5. アプローチの評価
 ]
 
 ---
 
-## 可読性の要素 .font-tiny[ー 可読性とは]
-
-.margin-top-tiny.center[
-Swiftコンパイラの**可読性を向上**する
-]
+## 可読性の要素 .font-tiny[ー 可読性の定義]
 
 | 種類 | 要素の例 |
 |:---:|:---:|
@@ -73,44 +55,71 @@ Swiftコンパイラの**可読性を向上**する
 | 説明の適切さ | コメント、名前付け、インデント |
 | 知識の多さ | 読者の知識、手法の種類 |
 
-特に処理の複雑さはレビューなどでは解消できず、可読性低下の主要因となる
+特に処理の複雑さはレビューなどでは改善が難しく、可読性低下の主要因となる
 
 .inverted.center[
-#### 本研究では処理の複雑さに特に注目する
+#### 本研究では処理の複雑さのみを<br>可読性の要因として扱う
 ]
 
 ---
 
-## 処理の複雑さを表す指標 .font-tiny[ー 可読性とは]
+## 処理の複雑さを表す指標 .font-tiny[ー 可読性の定義]
 
 1980年代にソフトウェア・メトリクスとしてソフトウェアの複雑さを定量化する手法が盛んに研究された
 
+.font-small[
 | 手法 | 指標 |
 |:---:|:---|
-| Line of Code | ソースコードの行数 |
-| Halstead Complexity Metrics | 演算子と被演算子の種類と数 |
-| Cyclomatic Complexity Metric | 分岐の数 |
-| Function Point | 入出力の数 |
+| Lines of Code (LOC) .footnote[※1] | ソースコードの実行可能な行数 |
+| Halstead Complexity Metrics (HCM) .footnote[※1] | 演算子と被演算子の種類と数 |
+| Cyclomatic Complexity Metric (CCM) .footnote[※1] | 分岐の数 |
+| Function Point (FP) .footnote[※2] | 入出力の数 |
+]
 
-.center[
-対象とするソフトウェアによって有効な手法が異なる
+.inverted.center[
+#### コンパイラを対象とする場合に有効な手法は限られる
+]
+
+.font-small[
+.footnote[※1 Sheng Yu and Shijie Zhou. A survey on metric of software complexity. Information Management and Engineering (ICIME), 2010 The 2nd IEEE International Conference on. IEEE, pages 512–521, 1982.]
+.footnote[※2 Charles R. Symons. Function point analysis: Difficulties and improvements. Software Engineering, IEEE Transactions on 14.1, pages 2–11, 1988.]
 ]
 
 ---
 
-## コンパイラにおける複雑さ (1/2) .font-tiny[ー 可読性とは]
+## コンパイラにおける複雑さ .font-tiny[ー 可読性の定義]
 
-* コンパイラは非常に巨大なソフトウェア
-* コンパイラとして基本的な機能を担う箇所の複雑さが特に重要
+### 複雑を考える上でのコンパイラの特徴
+
+* 非常に巨大なソフトウェアである
+* 基本的な機能と特殊な機能が混在している
+* 複数の独立した処理ステップから成る
 
 .center[
-基本的ないくつかのプログラムをコンパイルする時に<br>実行される部分だけを対象として複雑さを測定
+#### 各部分の複雑さが打ち消し合う懸念
 ]
 
-.font-small[
-| 手法 | 適合性 |
+### 複雑さを計測するための条件
+
+1. .highlight[基本的な機能のみ]を対象とした計測を行う
+2. .highlight[特定の処理ステップのみ]を対象とした計測を行う
+
+---
+
+## 基本機能のみを対象とする方法 .font-tiny[ー 可読性の定義]
+
+1. Swiftの基本的な構文を使うサンプルプログラムを用意
+2. サンプルプログラムをコンパイルするために必要な箇所だけを抜粋
+3. 抜粋箇所のみを対象に複雑さを計測
+
+.center[
+この方法で適用可能な計測手法は限られる
+]
+
+.stuff-table.font-small[
+| 手法 | 可用性 |
 |:---:|:---:|
-| .bold.highlight[Line of Code] | .bold.highlight[◎] |
+| .bold.highlight[Lines of Code] | .bold.highlight[◎]<br> |
 | Halstead Complexity Metrics | △<br>(部分的なプログラムでは値が偏る) |
 | Cyclomatic Complexity Metric | ×<br>(分岐が分解されてしまう) |
 | Function Point | ×<br>(入出力はほとんどない) |
@@ -118,32 +127,31 @@ Swiftコンパイラの**可読性を向上**する
 
 ---
 
-## コンパイラにおける複雑さ (2/2) .font-tiny[ー 可読性とは]
+## 具体的な計測方法 .font-tiny[ー 可読性の定義]
 
 .margin-top-middle.center.image-middle[
 ![実行部分LOCの計測方法](img/loc_measurement.png)
 ]
 
 .center[
-#### 本研究では実行部分LOCが可読性を表すとする
+#### 本研究では実行部分LOCでコンパイラの可読性を表す
 ]
 
 ---
 
-## Swiftコンパイラの構成要素 .font-tiny[ー 検証の対象]
+## 特定処理のみを対象とする方法 .font-tiny[ー 可読性の定義]
 
-.margin-top-tiny.center[
-**Swiftコンパイラ**の可読性を向上する
+.margin-top-middle.center[
+Swiftコンパイラの構成
 ]
-
 .margin-top-middle.image-width-max[
 ![Swiftコンパイラの構成](img/swift_compiler_process.png)
 ]
 
 .margin-top-middle[
-* 各処理ステップは異なる手法を用いて異なる処理を行う
-* 一部のステップは他のミドルウェアに依存している
 * 各処理ステップは前のステップの結果に依存している
+* ある処理ステップまでで実行を止めるオプションが存在する
+* 他のミドルウェアに依存したステップはAPIの差が影響を与える
 ]
 
 .margin-top-middle.center[
@@ -152,7 +160,40 @@ Swiftコンパイラの**可読性を向上**する
 
 ---
 
-## 可読性を向上する手法
+## 本研究の目的
+
+.margin-top-middle.font-large.center[
+構文解析器の実行部分LOCを削減することで
+]
+.center[
+#### Swiftコンパイラの可読性を向上する
+]
+
+.font-large.margin-top-middle.margin-left-large.padding-left-middle[
+1. .disable[可読性の定義]
+3. 可読性を向上するアプローチ
+4. アプローチを実現する実装
+5. アプローチの評価
+]
+
+---
+
+## 実行部分LOCの削減手法 (1/2) .font-tiny[ー アプローチ]
+
+.margin-top-large[
+* 複数のStatementを1行に記述する
+* 文法を直感的な別の言語で記述し解析器を自動生成する
+* 文法を必要なステップが少なくなるように変更する
+* ...
+]
+
+.margin-top-middle.center[
+#### 上記手法は可読性が向上するという明確な根拠がない
+]
+
+---
+
+## 実行部分LOCの削減手法 (2/2) .font-tiny[ー アプローチ]
 
 .horizontal[
 .stuff-table.width-half.font-tiny[
@@ -174,36 +215,44 @@ Swiftコンパイラの**可読性を向上**する
 .center.font-small[
 TIOBE Programming Indexの30位中10個の言語がSelf-host化されている
 ]
-* 新しく作られる汎用言語は既存のよく知られた汎用言語より表現力が高いことが多い
-* ある構文をまさにその構文を用いて記述できる
-* コンパイラの開発用に異なる言語を学ぶ必要がなくなる
+* 新しく作られる汎用言語は
+  .highlight[より表現力が高い]ことが多い
+* ある構文をその構文を用いて.highlight[より簡単に記述できる]
+* コンパイラの開発用に.highlight[異なる言語を学ぶ必要がなくなる]
 ]
 ]
 
 .center[
-#### 可読性の向上にSelf-host化が有効
+#### Self-host化をアプローチとして用いる
 ]
 
 ---
 
-## 本研究で行なったこと
+## 本研究の目的
 
-.center.margin-top-large[
-#### Self-host化によってSwiftコンパイラの可読性を<br>向上できることの検証
+.margin-top-small.font-large.center[
+Self-host化によって<br>構文解析器の実行部分LOCを削減することで
+]
+.center[
+#### Swiftコンパイラの可読性を向上する
 ]
 
-.margin-left-middle.margin-top-middle[
-1. Self-host化したSwiftコンパイラの構文解析器を実装
-2. 実装した構文解析器の実行部分LOCを測定
-3. Apple社のSwiftコンパイラの構文解析器の実行部分LOCを測定
-4. 各実行部分LOCを比較して考察
+.font-large.margin-top-middle.margin-left-large.padding-left-middle[
+1. .disable[可読性の定義]
+3. .disable[可読性を向上するアプローチ]
+4. アプローチを実現する実装
+5. アプローチの評価
 ]
 
 ---
 
-## 構文解析器の構成 .font-tiny[ー 実装の概要]
+## Swiftの構文解析器の構成 .font-tiny[ー 実装]
 
-.margin-top-middle.horizontal[
+.center.margin-top-middle.image-width-max[
+![Swiftコンパイラの構成](img/swift_compiler_process_parser.png)
+]
+
+.margin-top-small.horizontal[
 .image-middle[
 ![構文解析器の構成](img/parser_structure.png)
 ]
@@ -217,24 +266,30 @@ TIOBE Programming Indexの30位中10個の言語がSelf-host化されている
 
 ---
 
-## Self-host化した構文解析器の実装 .font-tiny[ー 実装の概要]
+## Self-host化した構文解析器の実装 .font-tiny[ー 実装]
 
-### TreeSwift
+### TreeSwift .font-tiny[ー 本研究で実装した構文解析器]
+
+.image-width-max[
+![TreeSwift](img/treeswift.png)
+]
+
+.center[
+各処理における特徴について順に説明
+]
 
 * オートマトンによる高級な字句解析
 * LL(k)クラスの再帰構文解析
 * テキストファイルベースのモジュール定義
 * 文法から検知可能なエラーの検出
 
-.image-width-max[
-![TreeSwift](img/treeswift.png)
-]
-
 ---
 
-## 字句解析 .font-tiny[ー 実装の概要]
+## 字句解析 .font-tiny[ー 実装]
 
+.margin-top-small.center[
 Swiftの字句は複雑な構造を持つ
+]
 
 .horizontal[
 ```cpp
@@ -257,29 +312,26 @@ i++ + i // 後置演算子 ++
 ]
 
 .inverted.center[
-#### 字句解析が構文解析より多くの処理を行うように実装
+#### 字句解析がより多くの処理を行うように実装
 ]
 
 ---
 
-## 構文解析 .font-tiny[ー 実装の概要]
-
-.center.image-small[
-![構文解析手法](img/parser.png)
-]
+## 構文解析 .font-tiny[ー 実装]
 
 .horizontal[
+Swiftの高度な構文を解析するプログラムは自動生成が難しい
+
 .stuff-table.font-small.width-half[
 | 解析手法 | 手作業での実装 | 自動生成 |
 |:---:|:---:|:---:|
 | 下向き | ○ | × |
 | 上向き | × | ○ |
 ]
-
-.margin-left-tiny[
-* 曖昧な構文の解析を可能に
-* Swiftで書き下せるように
 ]
+
+.center.image-small[
+![構文解析手法](img/parser.png)
 ]
 
 .inverted.center[
@@ -288,18 +340,22 @@ i++ + i // 後置演算子 ++
 
 ---
 
-## モジュール定義 .font-tiny[ー 実装の概要]
+## モジュール定義 .font-tiny[ー 実装]
 
-* 標準ライブラリなどはテキストファイルによるモジュール定義ファイルによって読み込まれる
-* 標準ライブラリは直接LLVM-IRで記述してDLL化
+* 標準ライブラリ中の定義などはテキストファイルによるモジュール定義ファイルによって読み込まれる
 
+.font-small[
 ```cpp
 public struct Int {
     public init (_builtinIntegerLiteral value: Builtin.Int64)
 }
 public func +(lhs: Int, rhs: Int) -> Int
 ```
+]
 
+* 標準ライブラリの実装は直接LLVM-IRで記述してDLL化
+
+.font-small[
 ```llvm
 %_MS9TreeSwift3Int = type <{ i64 }>
 define %_MS9TreeSwift3Int @_MO9TreeSwift1a_MS_MS9TreeSwift3Int_9TreeSwift3Int_MS9TreeSwift3Int(%_MS9TreeSwift3Int, %_MS9TreeSwift3Int) {
@@ -311,13 +367,13 @@ entry:
     ret %_MS9TreeSwift3Int %5
 }
 ```
+]
 
 ---
 
-## エラー検出 .font-tiny[ー 実装の概要]
+## エラー検出 .font-tiny[ー 実装]
 
 * 文法から静的に検出できるエラーは全て検知
-* エラー回復は未実装
 
 ```cpp
 // 意味解析で型の不整合として検出
@@ -337,27 +393,51 @@ func notInitialized(f: Bool) {
 }
 ```
 
----
-
-## 評価方法 (1/2)
-
-.font-small.inverted.center[
-#### 2つの構文解析器の実行部分LOCを比較
-]
-
-.center.image-small[
-![実行部分LOCの計測方法](img/loc_measurement.png)
-]
-
-### Apple社のSwiftコンパイラの条件
-
-* swift-2.2-SNAPSHOT-2015-12-31-a を評価用に変更
-* オプションを付けて構文解析だけを実行
-* モジュール解析はファイル形式が異なるため除外
+* エラー回復は未実装
 
 ---
 
-## 評価方法 (2/2)
+## 本研究の目的
+
+.margin-top-small.font-large.center[
+Self-host化によって<br>構文解析器の実行部分LOCを削減することで
+]
+.center[
+#### Swiftコンパイラの可読性を向上する
+]
+
+.font-large.margin-top-middle.margin-left-large.padding-left-middle[
+1. .disable[可読性の定義]
+3. .disable[可読性を向上するアプローチ]
+4. .disable[アプローチを実現する実装]
+5. アプローチの評価
+]
+
+---
+
+## 評価方法 .font-tiny[ー 評価]
+
+1. 2つのコンパイラの.highlight[構文解析器を対象として]
+2. .highlight[基本的な構文を使ったプログラム]について実行部分LOCを測定し
+3. 結果を比較/考察する
+
+### 構文解析器のみを対象とするための条件
+
+* swift-2.2-SNAPSHOT-2015-12-31-a を評価用に変更したものを使用
+* オプションを付けて.highlight[構文解析だけを実行]
+* ファイル形式が異なるため.highlight[モジュール解析は除外]
+
+### 測定時に使用するプログラム
+
+* .highlight[公式チュートリアル]に使用されている7つのプログラムを使用.footnote[※1]
+
+.footnote[
+※1 Trailing closureとString interpolationはTreeSwiftが未対応のため同等の構文に変更
+]
+
+---
+
+## 測定に使用するプログラム .font-tiny[ー 評価]
 
 .font-small[
 | 対象プログラム | 行数 | 主な使用構文 |
@@ -371,30 +451,13 @@ func notInitialized(f: Bool) {
 | Generics | 25 | 全称型 |
 ]
 
-.inverted.center[
-#### チュートリアル中の7つのプログラムを対象とする
-]
-
-.footnote[
-※ Trailing closureとString interpolationはTreeSwiftが未対応のため同等の構文に変更
+.center.inverted[
+#### Swiftの基本構文を充分に網羅している
 ]
 
 ---
 
-## 評価上の懸念点
-
-* .bold[構文解析以降の処理ステップが充分に実装されていない]
-    * ASTにおける後のステップ用の準備処理がSwiftの実行部分LOCを増やす可能性がある
-    * ファイルごとに計測結果を比較することで除外可能
-* .bold[2つのコンパイラで字句解析の手法が異なる]
-    * より単純なプログラムではTreeSwiftの実行部分LOCが高くなる可能性がある
-    * 他のプログラムの例と比較することで特定可能
-* .bold[TreeSwiftにはエラー回復が実装されていない]
-    * エラーの発生しないプログラムを対象とするので、エラー回復を行うプログラムは計測対象に含まれない
-
----
-
-## 評価結果と考察 (1/4)
+## 測定結果 (1/3) .font-tiny[ー 評価]
 
 .center[
 各プログラムにおけるコンパイラ全体の実行部分LOC
@@ -418,9 +481,9 @@ func notInitialized(f: Bool) {
 
 ---
 
-## 評価結果と考察 (2/4)
+## 測定結果 (2/3) .font-tiny[ー 評価]
 
-.horizontal[
+.margin-top-small.horizontal[
 .image-width-max[
 .font-small.center.margin-bottom-small[
 構文解析の本体を構成するファイル群
@@ -444,16 +507,16 @@ AST関連部分では後ステップ用の処理が実行部分LOCを増加さ�
 
 ---
 
-## 評価結果と考察 (3/4)
+## 測定結果 (3/3) .font-tiny[ー 評価]
 
-.font-small.center[
+.margin-top-small.center[
 構文解析ファイル群で再集計した実行部分LOC
 ]
 
 .font-small[
 | 対象プログラム | Swift | TreeSwift | Swiftからの減少率 |
 |:---:|---:|---:|---:|
-| Simple Values | 1263 | 1457 | -16.9% |
+| Simple Values | 1263 | 1457 | .bold.highlight[-16.9%] |
 | Control Flow | 1816 | 1698 | 7.52% |
 | Functions and Closures | 1982 | 1644 | 19.0% |
 | Objects and Classes | 1970 | 1658 | 19.6% |
@@ -462,20 +525,33 @@ AST関連部分では後ステップ用の処理が実行部分LOCを増加さ�
 | Generics | 1934 | 1657 | 14.6% |
 ]
 
-.center[
-#### 平均して10.47%実行部分LOCが減少
+---
+
+## 考察 (1/2) .font-tiny[ー 評価]
+
+### Simple Valuesにおける実行部分LOCの増加
+
+* Simple Valuesでは様々なリテラルを用いているが使われている文法の種類は少ない
+
+.horizontal[
+TreeSwiftの高級な字句解析が使用構文の少ないプログラムでは必要以上に実行部分LOCを増やした
+
+.image-width-max[
+![字句解析器の仕組み](img/lexical_analyzer.png)
+]
+]
+
+.center.margin-top-middle[
+#### Self-host化の結果現れた変化として捉える
 ]
 
 ---
 
-## 評価結果と考察 (4/4)
+## 考察 (2/2) .font-tiny[ー 評価]
 
-### Simple Valuesにおける実行部分LOCの増加
-
-* TreeSwiftは他の構文を想定した処理を字句解析で行っている
-* 様々な字句を用いた単純な構文では比較して実行部分LOCが増加した
-
-### 実行部分LOCの減少理由
+.margin-top-middle[
+### 殆どのプログラムでの実行部分LOCの減少理由
+]
 
 * UTF-8文字の処理などプログラム中の要素を同じ構文で記述できる
 * Swiftの多様なデータ構造とパターンマッチによる表現力の向上
@@ -483,14 +559,26 @@ AST関連部分では後ステップ用の処理が実行部分LOCを増加さ�
 .font-small[
 | | Swift | TreeSwift |
 |:---:|---:|---:|
-| if文使用数の平均 | 398.429 | 209.163 |
-| switch文使用数の平均 | 26.429 | 67.286 |
+| if文使用数の平均 | 398 | 209 |
+| switch文使用数の平均 | 26 | 67 |
+]
+
+.margin-top-middle.center[
+#### Self-host化による実行部分LOCの減少であるといえる
 ]
 
 ---
 
 ## 本研究の結論
 
-.bold.vertical-center.center[
-SwiftコンパイラをSelf-host化することによって<br>ソースコードの実行部分LOCを平均10.47%減少させる<br>可読性の向上を得られた
+.margin-top-large.bold.center[
+SwiftコンパイラのSelf-host化によって構文解析器の<br>ソースコードの実行部分LOCを平均10.5%減少させることができた
 ]
+
+.margin-top-middle[
+### 本研究の課題点
+]
+
+* より複雑な構文を用いたプログラムにおける実行部分LOCも減少するかは示せていない
+* 他の処理ステップにおいて可読性が向上するかは示せていない
+* Self-host化によって可読性の向上と引き換えに性能の低下などが起こっている可能性がある
