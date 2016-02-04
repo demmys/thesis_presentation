@@ -132,7 +132,7 @@ class: title
 
 ## コンパイラにおける複雑さ .font-tiny[ー 可読性の定義]
 
-### 複雑を考える上でのコンパイラの特徴
+### 複雑さを考える上でのコンパイラの特徴
 
 * 非常に巨大なソフトウェアである
 * 基本的な機能と特殊な機能が混在している
@@ -326,7 +326,7 @@ Self-host化によって<br>構文解析器の実行部分LOCを削減するこ�
 ]
 
 * Makefile以外100%Swiftのみで実装
-* 総行数約10000行
+* 総行数約10,000行
 * 構文解析器以外についても一部実装し有用性を検証済
 
 .inverted.center[
@@ -353,15 +353,15 @@ i++ + i // 後置演算子 ++
 ```
 ]
 
-.horizontal[
-.image-width-max[
+.margin-top-small.horizontal[
+.no-padding.image-width-max[
 ![字句解析器の仕組み](img/lexical_analyzer.png)
 ]
 
 字句解析器を各字句を解析する小さなオートマトンの集合として実装
 ]
 
-.inverted.center[
+.margin-top-small.inverted.center[
 #### 字句解析がより多くの処理を行うように実装
 ]
 
@@ -516,13 +516,13 @@ Self-host化によって<br>構文解析器の実行部分LOCを削減するこ�
 .font-small.stuff-table[
 | 対象プログラム | .center[Swift] | .center[TreeSwift<br>(提案手法)] | .center[Swiftからの減少率] |
 |:---:|---:|---:|---:|
-| Simple Values | 4188 | .bold[1928] | 53.96% |
-| Control Flow | 5347 | .bold[2226] | 58.37% |
-| Functions and Closures | 5819 | .bold[2187] | 62.42% |
-| Objects and Classes | 5937 | .bold[2122] | 64.26% |
-| Enumerations and Structures | 5762 | .bold[2258] | 60.81% |
-| Protocols and Extensions | 5598 | .bold[2132] | 61.91% |
-| Generics | 5887 | .bold[2233] | 62.07% |
+| Simple Values | 4,188 | .bold[1,928] | 53.96% |
+| Control Flow | 5,347 | .bold[2,226] | 58.37% |
+| Functions and Closures | 5,819 | .bold[2,187] | 62.42% |
+| Objects and Classes | 5,937 | .bold[2,122] | 64.26% |
+| Enumerations and Structures | 5,762 | .bold[2,258] | 60.81% |
+| Protocols and Extensions | 5,598 | .bold[2,132] | 61.91% |
+| Generics | 5,887 | .bold[2,233] | 62.07% |
 ]
 
 .center.inverted[
@@ -534,14 +534,14 @@ Self-host化によって<br>構文解析器の実行部分LOCを削減するこ�
 ## 測定結果 (2/3) .font-tiny[ー 評価]
 
 .margin-top-small.horizontal[
-.image-width-max[
+.no-padding.image-width-max[
 .font-small.center.margin-bottom-small[
 構文解析の本体を構成するファイル群
 ]
 ![構文解析ファイル群の実行部分LOC](img/parse_loc_result.png)
 ]
 
-.image-width-max[
+.no-padding.image-width-max[
 .font-small.center.margin-bottom-small[
 ASTを構成するファイル群
 ]
@@ -566,13 +566,13 @@ AST関連部分では後ステップ用の処理が実行部分LOCを増加さ�
 .font-small[
 | 対象プログラム | .center[Swift] | .center[TreeSwift<br>(提案手法)] | .center[Swiftからの減少率] |
 |:---:|---:|---:|---:|
-| Simple Values | 1263 | .bold[1457] | .bold.highlight[-16.9%] |
-| Control Flow | 1816 | .bold[1698] | 7.52% |
-| Functions and Closures | 1982 | .bold[1644] | 19.0% |
-| Objects and Classes | 1970 | .bold[1658] | 19.6% |
-| Enumerations and Structures | 1886 | .bold[1658] | 12.3% |
-| Protocols and Extensions | 1851 | .bold[1544] | 17.2% |
-| Generics | 1934 | .bold[1657] | 14.6% |
+| Simple Values | 1,263 | .bold[1,457] | .bold.highlight[-16.9%] |
+| Control Flow | 1,816 | .bold[1,698] | 7.52% |
+| Functions and Closures | 1,982 | .bold[1,644] | 19.0% |
+| Objects and Classes | 1,970 | .bold[1,658] | 19.6% |
+| Enumerations and Structures | 1,886 | .bold[1,658] | 12.3% |
+| Protocols and Extensions | 1,851 | .bold[1,544] | 17.2% |
+| Generics | 1,934 | .bold[1,657] | 14.6% |
 ]
 
 ---
@@ -586,7 +586,7 @@ AST関連部分では後ステップ用の処理が実行部分LOCを増加さ�
 .horizontal[
 TreeSwiftの高級な字句解析が使用構文の少ないプログラムでは必要以上に実行部分LOCを増やした
 
-.image-width-max[
+.no-padding.image-width-max[
 ![字句解析器の仕組み](img/lexical_analyzer.png)
 ]
 ]
@@ -634,4 +634,77 @@ TreeSwiftの高級な字句解析が使用構文の少ないプログラムで�
 * 構文解析以外のステップにおいても同様に減少を得られる可能性がある
 * Swift以外の言語ではSelf-host化を行っても可読性の向上には繋がらない可能性がある
 ]
+]
+
+---
+
+## 本研究のまとめ
+
+.bold[本研究ではSwiftコンパイラのソースコード可読性の向上を目的として]
+
+* 多くのコンパイラで用いられているSelf-host化を用いて
+* 新しいSwiftコンパイラ(TreeSwift)を実装した
+
+.bold[Self-host化によって可読性が向上していることを確認するために]
+
+* 基本的なプログラムのコンパイルに必要な実行部分LOCを計測し
+* 各コンパイラの結果を比較した
+
+.bold[その結果から考察した結果]
+
+* 実行部分LOCを平均10.5%減少させる可読性の向上を得られた
+
+---
+
+## 現在のTreeSwiftでできること
+
+.image-width-max[
+![TreeSwiftに実装済みのステップ](img/treeswift_implemented_process.png)
+]
+
+* すべての参照解決と一部の型推論まで実装済
+
+### 型推論の壁
+
+* Hindly-Milnerのアルゴリズムに基づく強力な型推論
+* オブジェクト指向プログラミング
+* 型パラメータ多相による全称型
+* 関数のオーバーロード
+
+.center.bold[
+C++, Java, Scala, OCaml, Rust, Haxe, Ceylonなど近い特徴を持つどの言語もそのすべてを満たす型推論は実装できていない
+]
+
+---
+
+## Self-host化の持つ問題
+
+.margin-top-small.bold.center[
+本研究では可読性を再重視したため<br>Self-host化に対して肯定的な結果となった
+]
+
+* SwiftレポジトリのFAQでは直近でSwiftのSelf-host化は行わないと述べられている
+    * Self-host化した際の言語環境用意プロセスが煩雑化する
+    * Swiftコンパイラにコンパイラ開発用の特徴を追加することよりも、汎用言語としての特徴追加を優先したい
+* Goのバージョン1.5ではSelf-host化によってコンパイラの性能が低下したことが報告されている
+
+.center[
+#### 実際のプロジェクトでは可読性以外の影響を考慮し<br>タイミングを図る必要がある
+]
+
+---
+
+## この研究テーマに至るまでの経緯
+
+.margin-top-middle.font-small[
+| 年月 | .center[ことがら] |
+|:---:|:---|
+| 2014年6月 | Apple社がWWDCにてSwiftをクローズドプロジェクトとして発表 |
+| 2014年11月 | .bold[Self-host化したオープンソースSwiftコンパイラとしてTreeSwiftの開発を開始] |
+| 2015年6月 | Apple社がWWDCにてSwiftのオープンソース化を発表 |
+| 2015年12月 | Apple社がSwiftをオープンソース化 |
+]
+
+.margin-top-middle[
+* TreeSwiftの開発はSwiftのオープンソース化以前に行われていた
 ]

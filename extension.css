@@ -17,3 +17,6 @@
 .remark-slide-content .font-small .remark-code {
     font-size: 1.2em;
 }
+.remark-slide-content .no-padding {
+    padding: 0;
+}
